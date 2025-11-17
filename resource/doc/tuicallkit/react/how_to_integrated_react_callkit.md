@@ -1,23 +1,13 @@
-This article will guide you through the process of integrating the TUICallKit component quickly. By following this documentation, you can complete the access work in just 10 minutes and ultimately obtain an application with a complete user interface as well as audio and video calling features.
-<table>
-<tr>
-<td rowspan="1" colSpan="1" >Video Call</td>
+This article will guide you through the quick integration of the TUICallKit component. You will complete several key steps within 10 minutes, ultimately obtaining a video call feature with a complete UI interface.
 
-<td rowspan="1" colSpan="1" >Group call</td>
-</tr>
+![](https://write-document-release-1258344699.cos.ap-guangzhou.tencentcos.cn/100029836296/ace7b80f181f11ef9c015254002977b6.png)
 
-<tr>
-<td rowspan="1" colSpan="1" >![](https://write-document-release-1258344699.cos.ap-guangzhou.tencentcos.cn/100027182394/1390039d18d011ef9ff4525400f65c2a.png)</td>
+## Prerequisites
+- React version 18+.
 
-<td rowspan="1" colSpan="1" >![](https://write-document-release-1258344699.cos.ap-guangzhou.tencentcos.cn/100027182394/4cd1634b18ce11efb8185254005ac0ca.png)</td>
-</tr>
-</table>
-
-
-## Environment Preparations
 - [Node.js](https://nodejs.org/en/) version 16+.
 
-- two Mobile phone.
+- Modern browser, supporting WebRTC APIs.
 
 
 ## Step 1. Activate the service
@@ -25,13 +15,13 @@ This article will guide you through the process of integrating the TUICallKit co
 Refer to [Activate the Service](https://trtc.io/document/59832?platform=web&product=call) to obtain `SDKAppID, SDKSecretKey`, which will be used as **Mandatory Parameters in **[Initialize the TUICallKit](https://write.woa.com/document/133160392291844096)**.**
 
 ## Step 2. Download the TUICallKit
-1. Download the [@tencentcloud/call-uikit-react-native](https://www.npmjs.com/package/@tencentcloud/call-uikit-react) component.
+1. Download the [@tencentcloud/call-uikit-react](https://www.npmjs.com/package/@tencentcloud/call-uikit-react) component.
 
    
    
    【shell】
    ``` bash
-   yarn add @tencentcloud/call-uikit-react-native
+   npm install @tencentcloud/call-uikit-react
    ```
 2. Copy the `debug` directory to your project directory `src/debug`, it is necessary when generating userSig locally.
 
@@ -41,45 +31,66 @@ Refer to [Activate the Service](https://trtc.io/document/59832?platform=web&prod
 
 【MacOS】
 ``` bash
-cp -r node_modules/@tencentcloud/call-uikit-react-native/src/debug ./src
+cp -r node_modules/@tencentcloud/call-uikit-react/debug ./src
 ```
 
 
 【Windows】
 ``` bash
-xcopy node_modules\@tencentcloud\call-uikit-react\src\debug .\src\debug /i /e
+xcopy node_modules\@tencentcloud\call-uikit-react\debug .\src\debug /i /e
 ```
 
 
-## Step 3. Login the TUICallKit
+## Step 3. Initialize the TUICallKit
 
 You can choose to import the sample code in the `/src/App.tsx` file.
 1. Import the call uikit.
 
    ``` javascript
-   import { TUICallKit, MediaType } from '@tencentcloud/call-uikit-react-native';
+   import { useState } from 'react';
+   import { TUICallKit, TUICallKitServer, TUICallType } from "@tencentcloud/call-uikit-react";
    import * as GenerateTestUserSig from "./debug/GenerateTestUserSig-es"; // Refer to Step 2.2
    ```
-2. using the [TUICallKit.login](https://write.woa.com/document/162412491425603584) API to log in to the component, you need to `fill in``SDKAppID, SDKSecretKey `as two parameters in the code.
+2. using the [<TUICallKit />](https://trtc.io/document/51015#call#tuicallkit), which contains the complete UI interaction during a call.
 
    ``` javascript
-     const handleLogin = async () => {
-       const userId = "denny";     // Please replace with your userId
-       const SDKAppID = 0;         // Please replace with the SDKAppID obtained from step 1
-       const SecretKey = "****";   // Please replace with the SDKSecretKey obtained from step 1
+   return (
+     <>
+       <span> caller's ID: </span>
+       <input type="text" placeholder='input caller userID' onChange={(event) => setCallerUserID(event.target.value)} />
+       <button onClick={init}> step1. init </button> <br />
+       <span> callee's ID: </span>
+       <input type="text" placeholder='input callee userID' onChange={(event) => setCalleeUserID(event.target.value)} />
+       <button onClick={call}> step2. call </button>
        
-       const { userSig } = genTestUserSig({ userID: userId, SDKAppID, SecretKey });
+       {/* 【1】Import the TUICallKit component: Call interface UI */}
+       <TUICallKit />
+     </>
+   );
+   ```
+3. using the [TUICallKitServer.init](https://trtc.io/document/51015#call#init) API to log in to the component, you need to `fill in``SDKAppID, SDKSecretKey `as two parameters in the code.
+
+   ``` javascript
+   const SDKAppID = 0;        // TODO: Replace with your SDKAppID (Notice: SDKAppID is of type number）
+   const SDKSecretKey = '';   // TODO: Replace with your SDKSecretKey
    
-       TUICallKit.login(
-         {
-           sdkAppId: SDKAppID,
-           userId,
-           userSig,
-         },
-         (res) => {},
-         (errCode, errMsg) => {}
-       );
-     };
+   const [callerUserID, setCallerUserID] = useState('');
+   const [calleeUserID, setCalleeUserID] = useState('');
+     
+   //【2】Initialize the TUICallKit component
+   const init = async () => {
+     const { userSig } = GenerateTestUserSig.genTestUserSig({ 
+       userID: callerUserID,
+       SDKAppID,
+       SecretKey: SDKSecretKey,
+     });
+     await TUICallKitServer.init({
+       userID: callerUserID,
+       userSig,
+       SDKAppID,
+     });
+     alert('TUICallKit init succeed');
+   }
    ```
 <table>
 <tr>
@@ -91,7 +102,7 @@ You can choose to import the sample code in the `/src/App.tsx` file.
 </tr>
 
 <tr>
-<td rowspan="1" colSpan="1" >userId</td>
+<td rowspan="1" colSpan="1" >userID</td>
 
 <td rowspan="1" colSpan="1" >String</td>
 
@@ -107,7 +118,7 @@ You can choose to import the sample code in the `/src/App.tsx` file.
 </tr>
 
 <tr>
-<td rowspan="1" colSpan="1" >SecretKey</td>
+<td rowspan="1" colSpan="1" >SDKSecretKey</td>
 
 <td rowspan="1" colSpan="1" >String</td>
 
@@ -131,33 +142,51 @@ You can choose to import the sample code in the `/src/App.tsx` file.
 
 
 ## Step 4. Make your first call
-1. using the [TUICallKit.call API](https://write.woa.com/document/162412580951224320) to make a call.
+1. using the [TUICallKitServer.calls API](https://trtc.io/document/51015#calls) to make a call.
 
    ``` javascript
    //【3】Make a 1v1 video call
-   const users: string[] = ["mike"];
    const call = async () => {
-     await TUICallKit.calls({
-       userID: users,
-       mediaType: MediaType.Video,
+     await TUICallKitServer.calls({
+       userIDIDList: [calleeUserID],
+       type: TUICallType.VIDEO_CALL,
      });
    };
    ```
-2. **After both userID login to successfully**,  make a call..
+2. Run the project.
+   
 
-<table>
-<tr>
-<td rowspan="1" colSpan="1" >Caller initiates an audio call</td>
+   > **Warning:**
+   > 
 
-<td rowspan="1" colSpan="1" >Callee receives an audio call request</td>
-</tr>
+   > **For local environment, please access under localhost protocol. For public network experience, please access under HTTPS protocol. For details, see **[Description of Network Access Protocol](https://web.sdk.qcloud.com/trtc/webrtc/doc/en/tutorial-05-info-browser.html#h2-3)**.**
+   > 
 
-<tr>
-<td rowspan="1" colSpan="1" >![](https://write-document-release-1258344699.cos.ap-guangzhou.tencentcos.cn/100027119876/078b6eea190411ef8a48525400762795.png)<br></td>
+3. Open two browser pages,** enter different userID (defined by you) **click `step1. init` to login (caller and callee).
 
-<td rowspan="1" colSpan="1" >![](https://write-document-release-1258344699.cos.ap-guangzhou.tencentcos.cn/100027119876/077a2a05190411ef88ad5254002977b6.png)</td>
-</tr>
-</table>
+
+   ![](https://write-document-release-1258344699.cos.ap-guangzhou.tencentcos.cn/100029836296/0634dc1f668811ef9664525400d5f8ef.png)
+
+4. **After both userID init to successfully**, click on` step2. call`to make a call. If you have a call problem, refer to [FAQs](https://trtc.io/document/51024?platform=android&product=call#create_userID).
+
+
+   ![](https://write-document-release-1258344699.cos.ap-guangzhou.tencentcos.cn/100029836296/1f3e8349668811ef86bb525400fdb830.png)
+
+
+## Additional Features
+- [Setting Nickname, Avatar](https://trtc.io/document/59834?platform=web&product=call)
+
+- [Group Call](https://trtc.io/document/59838?platform=web&product=call)
+
+- [Floating Window](https://trtc.io/document/59842?platform=web&product=call)
+
+- [Custom Ringtone](https://trtc.io/document/59847?platform=web&product=call)
+
+- [Call Status Monitoring, Component Callback Event](https://trtc.io/document/59852?platform=web&product=call)
+
+- [Setting Resolution, Fill Pattern](https://trtc.io/document/59835?platform=web&product=call)
+
+- [Customize Interface](https://trtc.io/document/50997?platform=web&product=call)
 
 
 ## FAQs

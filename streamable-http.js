@@ -1,15 +1,10 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const streamableHttp_js_1 = require("@modelcontextprotocol/sdk/server/streamableHttp.js");
-const server_js_1 = require("./server.js");
-const app = (0, express_1.default)();
-app.use(express_1.default.json());
-const server = (0, server_js_1.createServer)();
-const transport = new streamableHttp_js_1.StreamableHTTPServerTransport({
+import express from 'express';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { createServer } from './server.js';
+const app = express();
+app.use(express.json());
+const server = createServer();
+const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // set to undefined for stateless servers
 });
 // Setup routes for the server
@@ -71,4 +66,4 @@ setupServer().then(() => {
     console.error('Failed to set up the server:', error);
     process.exit(1);
 });
-//# sourceMappingURL=streamableHttp.js.map
+//# sourceMappingURL=streamable-http.js.map

@@ -1,65 +1,67 @@
-_English | [简体中文](README-zh_CN.md)_
+## Tencent SDK Model Context Protocol (MCP) Server for Cursor IDE
 
-# Tencent RTC MCP Server User Guide
+This repository provides a CLI-based Model Context Protocol (MCP) server that exposes Tencent SDK documentation and Tencent API resources to LLM-powered tools.
+This improves the LLM AI Agent's ability to understand and interact with Tencent's SDKs and APIs.
 
-This repository provides a Model Context Protocol (MCP) server based on the Command Line Interface (CLI). It delivers Tencent Cloud SDK documentation and API resources to Large Language Model (LLM) based tools. This enhances the ability of LLM AI agents to understand and interact with Tencent Cloud SDKs and APIs, facilitating seamless integration of Tencent Cloud services into applications.
 
 ## Features
 
-- **MCP Server**: Provides tools for interacting with Tencent Cloud via the JSON-RPC protocol over STDIN/STDOUT.
-- **Languages**: JavaScript, Java, Swift, Objective-C, Kotlin.
-- **API Reference Section**: Configuration, function invocation. Access code examples, usage patterns, and detailed explanations of Tencent Cloud SDK features.
-- **Tencent Cloud TUICallKit SDK Documentation Retrieval**: Retrieve official Tencent Cloud TUICallKit SDK documentation (converted from HTML to Markdown format), covering the following:
+- MCP server exposing tools for interacting with Tencent via JSON-RPC over STDIN/STDOUT.
+- Retrieve official Tencent SDK documentation (HTML → Markdown) for:
+  - Languages: JavaScript, Java, Swift, Objective-C, Kotlin.
+  - API reference sections: configuration, calls function.
+- Retrieve official Tencent TUICallKit SDK documentation (HTML → Markdown) for:
+  - TUICallKit SDK languages: JavaScript, Kotlin, Swift.
+  - TUICallKit SDK topics: configuration, calls function.
+- Retrieve official Tencent ChatUIKit documentation (HTML → Markdown) for:
+  - ChatUIKit SDK languages: JavaScript, Kotlin, Swift.
+  - ChatUIKit SDK topics: configuration, chat function.
+- Converts remote HTML articles to Markdown using `jsdom` and `turndown` for consistent documentation formatting.
+- Input validation via Zod schemas for all tool parameters, ensuring robust error handling.
+- Extensible tool definitions leveraging the Model Context Protocol SDK (`@modelcontextprotocol/sdk`) with `McpServer` and `StdioServerTransport`.
 
-## Example Prompts
-
-- "Develop an Android application that supports audio and video calls using TUICallKit."
-- "Implement audio and video call functionality in our project by integrating TUICallKit."
-- "Retrieve the API usage documentation for React TUICallKit."
 
 ## Prerequisites
-
-- Node.js (version >= 18) and [npm](https://nodejs.org/)
+- Node.js (>= 18) and npm
 - Cursor IDE with MCP support
 
-## Installation
 
-To run the Tencent Cloud MCP server locally or add it to Cursor IDE via npx:
+## How To Use
+To set up the @tencent-rtc/mcp MCP Server, follow these steps:
+
+### Step1: Installation.
 
 ```
 npx -y @tencent-rtc/mcp
 ```
 
-## Cursor Configuration
+### Step2: MCP Configuration.
+In your Cursor project, create or open the `.cursor/mcp.json` or `~/.cursor/mcp.json` files and add your config.
 
-To use the MCP server, Cursor must be in AGENT MODE. The Cursor IDE discovers MCP servers through a JSON configuration file. You can configure the Tencent Cloud MCP server globally or per project.
-
-### Global Configuration
-
-Edit or create the file ~/.cursor/mcp.json:
-
-```
+```javascript
 {
   "mcpServers": {
     "tencent-rtc": {
       "command": "npx",
       "args": ["-y", "@tencent-rtc/mcp"],
+      "env": {
+        "SDKAPPID": "YOUR_SDKAPPID",
+        "SECRETKEY": "YOUR_SECRET_KEY"
+      }
     }
   }
 }
 ```
+When you save the file, a notification is displayed. In the prompt, click **Enable**.
 
-### Project Configuration
+### Step3: Check MCP Status
+Navigate to **Cursor Settings** (the gear icon in top right corner) -> **MCP**, and check if tencentcloud-sdk-mcp server is enabled.
 
-In the project directory, create .cursor/mcp.json:
+### Step4: Use MCP
+Ask the AI agent to build your Tencentcloud sdk app for you by describing the functionality yourself or by using a sample prompt.
 
-```
-{
-  "mcpServers": {
-    "tencent-rtc": {
-      "command": "npx",
-      "args": ["-y", "@tencent-rtc/mcp"],
-    }
-  }
-}
-```
+> [!NOTE]
+For complete details, please refer to the following [AI Integration](https://trtc.io/document/72277?product=chat&menulabel=uikit&platform=react)
+
+> [!WARNING]
+Depending on your IDE rules, you may also need to explicitly ask the AI agent to use the `tencent-rtc` mcp server.
